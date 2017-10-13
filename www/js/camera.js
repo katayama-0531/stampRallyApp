@@ -18,7 +18,6 @@ function getCamera() {
     function onSuccess(imageData) {
         ons.notification.toast({ message: '保存しました。', timeout: 1500 });
         console.log(imageData)
-        //alert('保存しました。');
     }
 
     //撮影失敗

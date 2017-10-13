@@ -1,6 +1,10 @@
 <ons-page ng-controller="menu3Ctr" id="menu3Page">
-    <div class="content" style="text-align: center">
-        <h4>スライドメニュー3</h4>
-        <img id="imgTest" src="" >
-    </div>
+        <ons-carousel swipeable overscrollable auto-scroll fullscreen var="carousel">
+            <ons-carousel-item ons-lazy-repeat="imgItemListDelegate">
+                <div><img id="imgTest" src="{{imgScr}}"></div>
+            </ons-carousel-item>
+            <ons-carousel-cover>
+                <div class="cover-label">左右にスワイプしてください</div>
+            </ons-carousel-cover>
+        </ons-carousel>
 </ons-page>

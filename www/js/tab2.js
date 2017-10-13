@@ -16,7 +16,6 @@ app.controller('tab2Ctr', function($scope, $timeout) {
         configureItemScope: function(index, itemScope) {
             if (!itemScope.memo) {
                 console.log('Item #' + (index + 1) + '作成');
-                // 削除後のアイテムが生成されないように
                 itemScope.memo = memoListItem[index].dataTime;
                 itemScope.id = "listitem" + index;
             }
@@ -26,7 +25,7 @@ app.controller('tab2Ctr', function($scope, $timeout) {
         countItems: function() {
             // Return number of items.
             if (memoListItem) {
-                itemCount = memoListItem.length;
+               itemCount = memoListItem.length;
             }
             return itemCount;
         },
@@ -42,17 +41,7 @@ app.controller('tab2Ctr', function($scope, $timeout) {
         }
     };
 
-    $scope.editChange = function() {
-        if (memo.value) {
-            //保存ボタンを有効化
-            save.disabled = false;
-        } else {
-            //保存ボタンを無効化
-            save.disabled = true;
-        }
-    }
-
-    document.addEventListener("touchend", listItemTap, false);
+    document.addEventListener("tap", listItemTap, false);
 
     //リストの中の要素をタッチ
     function listItemTap(event) {
@@ -82,18 +71,21 @@ app.controller('tab2Ctr', function($scope, $timeout) {
 
     //保存ボタンタッチ
     $scope.save = function() {
-        //現在日時
-        var nowDataTime = new Date().toLocaleString();
-        //Jsonに変換して保存
-        if (memoListItem == null) {
-            memoListItem = [];
-        };
-        memoListItem.push({ dataTime: nowDataTime, memo: memo.value });
-        localStorage.setItem('memo', JSON.stringify(memoListItem));
-        memo.value = "";
-        //保存ボタンを無効化
-        save.disabled = true;
-        ons.notification.toast({ message: '保存しました。', timeout: 1000 });
+        if (memo.value) {
+            //現在日時
+            var nowDataTime = new Date().toLocaleString();
+            //Jsonに変換して保存
+            if (memoListItem == null) {
+                memoListItem = [];
+            };
+            memoListItem.push({ dataTime: nowDataTime, memo: memo.value });
+            localStorage.setItem('memo', JSON.stringify(memoListItem));
+            memo.value = "";
+            ons.notification.toast({ message: '保存しました。', timeout: 1000 });
+        } else {
+            alert("内容がありません。メモを入力してください。");
+
+        }
     }
 
     function memoDelete(buttonIndex) {
