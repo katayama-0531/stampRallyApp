@@ -1,10 +1,8 @@
 var app = ons.bootstrap();
 app.controller('AppController', function($scope, $http, $timeout) {
     //ログイン画面のコントローラー
-    var vm = this;
-
     // メンバ
-    vm.menu = null;
+    this.menu = null;
     var id = localStorage.getItem('ID');
     $scope.loginClick = function() {
         login(id, $http);
@@ -18,6 +16,7 @@ app.controller('AppController', function($scope, $http, $timeout) {
         });
         if (page.target.id == "loginPage") {
             login(id, $http);
+            id=null;
         }
     });
 

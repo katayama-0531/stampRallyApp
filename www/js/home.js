@@ -1,6 +1,7 @@
 app.controller('homeCtr', function($scope) {
+
     loginName.innerHTML = "ID:" + localStorage.getItem('ID') + "でログイン中";
-    
+
     $scope.MyDelegate = {
         configureItemScope: function(index, itemScope) {
             // Initialize scope

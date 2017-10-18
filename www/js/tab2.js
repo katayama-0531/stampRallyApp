@@ -55,7 +55,7 @@ app.controller('tab2Ctr', function($scope, $timeout) {
                 var options = {
                     data: memoObject
                 };
-                navi.pushPage("html/memo.html", options);
+                navi.bringPageTop("html/memo.html", options);
             }
         }
     }
@@ -92,8 +92,6 @@ app.controller('tab2Ctr', function($scope, $timeout) {
         //はいがタップされたら削除する
         if (buttonIndex == 1) {
             memoListItem.splice(delindex, 1);
-            //無理矢理消す
-            //angular.element(memoList.childNodes[1].children[delindex].remove());
             //一度memoを全部削除して入れ直す。
             localStorage.removeItem('memo');
             localStorage.setItem('memo', JSON.stringify(memoListItem));

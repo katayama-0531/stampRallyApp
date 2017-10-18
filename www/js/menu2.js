@@ -2,20 +2,10 @@
 var maskA = "images/mask_android.png";
 //表示するマスク画像URL（ios)
 var maskI = "images/mask_ios.png";
-//表示する画像URL1枚目
-var img1 = new Image();
-//表示する画像URL2枚目
-var img2 = new Image();
-//表示する画像URL3枚目
-var img3 = new Image();
-//表示中画像枚数
-var imgCount = 0;
-//マスクキャンバス
-var ctx;
+//選択中の画像
+var choiceCanvase = 0;
 app.controller('menu2Ctr', function($scope, $http) {
     console.log("2つめメニュー");
-
-    ctx = photCanvas.getContext('2d');
     var w = $('.wrapper').width();
     var h = $('.wrapper').height();
     $(".relative").attr('width', w);
@@ -24,36 +14,72 @@ app.controller('menu2Ctr', function($scope, $http) {
     var img = new Image();
     if (monaca.isAndroid) {
         img.src = maskA;
-    }
-    if (monaca.isIOS) {
+    } else if (monaca.isIOS) {
         img.src = maskI;
+    } else {
+        img.src = maskA;
     }
     img.onload = function() {
-        photCanvas.width = img.width;
-        photCanvas.height = img.height;
+        //キャンバスは高さと幅を指定しておかないとiOSで表示できない
+        var width = parseInt(img.width);
+        var height = parseInt(img.height);
+        maskCanvas.width = width;
+        maskCanvas.height = height;
+        phot3Canvas.width = width;
+        phot3Canvas.height = height - phot3Canvas.style.top.slice(0, -2);
+        phot2Canvas.width = width;
+        phot2Canvas.height = height - phot2Canvas.style.top.slice(0, -2);
+        phot1Canvas.width = width;
+        phot1Canvas.height = height;
+        photCanvas.width = width;
+        photCanvas.height = height;
+        photCanvas.getContext('2d').clearRect(0, 0, width, height);
         /* 画像を描画 */
-        ctx.drawImage(img, 0, 0);
+        maskCanvas.getContext('2d').drawImage(img, 0, 0);
     }
-
-    //カメラ画面のコントローラー
-    $scope.snapClick = function() {
-        getMaskCamera();
-    }
-
-    $scope.albumClick = function() {
-        getPhot();
-    }
-
+    //画像を貼る予定のキャンバスのタッチイベント
+    phot1Canvas.addEventListener("click", function(event) {
+        choiceCanvase = 1;
+        setTimeout(function() {
+            navigator.notification.confirm("アルバムの写真を使用するか撮影するか選択してください", canvasConfirmCallback, "写真の選択", ["アルバムから選択", "撮影する"]);
+        }, 0);
+    });
+    phot2Canvas.addEventListener("click", function() {
+        choiceCanvase = 2;
+        setTimeout(function() {
+            navigator.notification.confirm("アルバムの写真を使用するか撮影するか選択してください", canvasConfirmCallback, "写真の選択", ["アルバムから選択", "撮影する"]);
+        }, 0);
+    });
+    phot3Canvas.addEventListener("click", function() {
+        choiceCanvase = 3;
+        setTimeout(function() {
+            navigator.notification.confirm("アルバムの写真を使用するか撮影するか選択してください", canvasConfirmCallback, "写真の選択", ["アルバムから選択", "撮影する"]);
+        }, 0);
+    });
     $scope.saveClick = function() {
         modal.show();
         save($http);
     }
 });
 
+function canvasConfirmCallback(buttonIndex) {
+    switch (buttonIndex) {
+        case 1:
+            getPhot();
+            break;
+        case 2:
+            getMaskCamera();
+            break;
+        default:
+            break;
+    }
+}
+
 function getMaskCamera() {
+    modal.show();
     //カメラ起動
     navigator.camera.getPicture(onCameraSuccess, onCameraFail, {
-        quality: 100,
+        quality: 50,
         destinationType: Camera.DestinationType.FILE_URI,
         pictureSourceType: Camera.PictureSourceTypeCAMERA,
         correctOrientation: true,
@@ -62,7 +88,6 @@ function getMaskCamera() {
 
     //撮影成功
     function onCameraSuccess(imageData) {
-        modal.show();
         draw(imageData);
     }
 
@@ -70,10 +95,12 @@ function getMaskCamera() {
     function onCameraFail(message) {
         //撮影キャンセルもエラーが表示されるので取りあえずコメントアウト（表示文字：no image selected)
         //alert('Error occured: ' + message);
+        modal.hide();
     }
 }
 
 function getPhot() {
+    modal.show();
     //アルバム起動
     navigator.camera.getPicture(onAlbumSuccess, onAlbumFail, {
         quality: 50,
@@ -84,7 +111,6 @@ function getPhot() {
 
     //取得成功
     function onAlbumSuccess(imageData) {
-        modal.show();
         draw(imageData);
     }
 
@@ -92,121 +118,30 @@ function getPhot() {
     function onAlbumFail(message) {
         //アルバム開いてもキャンセルのエラーが表示されるので取りあえずコメントアウト（表示文字：no image selected)
         //alert('Error occured: ' + message);
+        modal.hide();
     }
 }
 
 function draw(imageData) {
-    var scale = 0.1;
-    var maskImg = new Image();
-    if (monaca.isAndroid) {
-        maskImg.src = maskA;
-    }
-    if (monaca.isIOS) {
-        maskImg.src = maskI;
-    }
-
-    if (monaca.isAndroid) {
-        window.resolveLocalFileSystemURL(imageData, function(fileEntry) {
-            fileEntry.file(function(file) {
-
-                var fileReader = new FileReader();
-                fileReader.onload = function(event) {
-                    dataUrl = fileReader.result;
-                    var image = new Image();
-                    image.src = dataUrl;
-                    ctx.width = image.width;
-                    ctx.height = image.height;
-                    image.onload = function() {
-                        var dstWidth = image.width * scale;
-                        var dstHeight = image.height * scale;
-                        photCanvas.width = dstWidth;
-                        photCanvas.height = dstHeight;
-                        /* 画像を描画 */
-                        switch (imgCount) {
-                            case 0:
-                                Base64ToImage(dataUrl, function(img) {
-                                    img1 = img;
-                                    ctx.drawImage(img1, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight);
-                                    ctx.drawImage(maskImg, 0, 0);
-                                    imgCount++;
-                                    modal.hide();
-                                });
-                                break;
-                            case 1:
-                                Base64ToImage(dataUrl, function(img) {
-                                    img2 = img;
-                                    ctx.drawImage(img1, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight);
-                                    ctx.drawImage(img2, 0, 0, image.width, image.height, 0, 180, dstWidth, dstHeight);
-                                    ctx.drawImage(maskImg, 0, 0);
-                                    imgCount++;
-                                    modal.hide();
-                                });
-                                break;
-                            case 2:
-                                Base64ToImage(dataUrl, function(img) {
-                                    img3 = img;
-                                    ctx.drawImage(img1, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight);
-                                    ctx.drawImage(img2, 0, 0, image.width, image.height, 0, 180, dstWidth, dstHeight);
-                                    ctx.drawImage(img3, 0, 0, image.width, image.height, 0, 320, dstWidth, dstHeight);
-                                    ctx.drawImage(maskImg, 0, 0);
-                                    imgCount++;
-                                    modal.hide();
-                                });
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                };
-                fileReader.onerror = function(event) {
-                    modal.hide();
-                    alert(event.toString());
-                };
-
-                fileReader.readAsDataURL(file);
-            }, function(e) {
-                alert("error");
-                console.debug(e);
-            });
-        });
-    } else {
-        /* Imageオブジェクトを生成 */
-        var img = new Image();
-        img.src = imageData;
-        ctx.width = img.width;
-        ctx.height = img.height;
-        img.onload = function() {
-            var dstWidth = img.width * scale;
-            var dstHeight = img.height * scale;
-            photCanvas.width = dstWidth;
-            photCanvas.height = dstHeight;
-            /* 画像を描画 */
-            switch (imgCount) {
-                case 0:
-                    img1.src = imageData;
-                    ctx.drawImage(img1, 0, 0, img.width, img.height, 0, 0, dstWidth, dstHeight);
-                    imgCount++;
-                    break;
-                case 1:
-                    img2.src = imageData;
-                    ctx.drawImage(img1, 0, 0, img.width, img.height, 0, 0, dstWidth, dstHeight);
-                    ctx.drawImage(img2, 0, 0, img.width, img.height, 0, 170, dstWidth, dstHeight);
-                    imgCount++;
-                    break;
-                case 2:
-                    img3.src = imageData;
-                    ctx.drawImage(img1, 0, 0, img.width, img.height, 0, 0, dstWidth, dstHeight);
-                    ctx.drawImage(img2, 0, 0, img.width, img.height, 0, 180, dstWidth, dstHeight);
-                    ctx.drawImage(img3, 0, 0, img.width, img.height, 0, 320, dstWidth, dstHeight);
-                    imgCount++;
-                    break;
-                default:
-                    break;
-            }
-
-            ctx.drawImage(maskImg, 0, 0);
-            modal.hide();
+    /* Imageオブジェクトを生成 */
+    var img = new Image();
+    img.src = imageData;
+    img.onload = function() {
+        /* 画像を描画 */
+        switch (choiceCanvase) {
+            case 1:
+                phot1Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 0, phot1Canvas.width, phot1Canvas.height);
+                break;
+            case 2:
+                phot2Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 0, phot2Canvas.width, phot2Canvas.height);
+                break;
+            case 3:
+                phot3Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 0, phot3Canvas.width, phot3Canvas.height);
+                break;
+            default:
+                break;
         }
+        modal.hide();
     }
 }
 //64base→img変換
@@ -219,11 +154,17 @@ function Base64ToImage(base64img, callback) {
 }
 
 function save($http) {
-    var myCanvas = $("#photCanvas").get(0);
-    var buffer = myCanvas.toDataURL("image/png");
+    //非表示のキャンバスに出力
+    var imgAry = [phot1Canvas, phot2Canvas, phot3Canvas, maskCanvas];
+    for (var i in imgAry) {
+        if (imgAry[i] != null) {
+            photCanvas.getContext('2d').drawImage(imgAry[i], 0, 0, imgAry[i].width, imgAry[i].height, 0, imgAry[i].offsetTop, imgAry[i].width, imgAry[i].height);
+            imgAry[i] = null;
+        }
+    }
+    var buffer = photCanvas.toDataURL("image/png");
     //保存する画像のファイル名
     var imgName = Date.now() + ".png";
-
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fs) {
         fs.root.getFile(imgName, { create: true, exclusive: false },
             function(entry) {
@@ -240,7 +181,8 @@ function save($http) {
                             console.log("書き込み失敗");
                             console.log("ファイルへの書き込みに失敗しました。: " + e.toString());
                         }
-                        writer.write(buffer);
+                        //サーバーに保存するのでほんたいには保存しない
+                        //writer.write(buffer);
 
                         //サーバーに保存する
                         upload(imgName, $http);
@@ -282,9 +224,14 @@ function upload(image, $http) {
         $http.post(url, postData, config).
         success(function(e, status) {
             if (e["response"] == true) {
-                imgCount = 0;
+                choiceCanvase = 0;
                 modal.hide();
                 alert('保存しました。');
+                //選択した画像をリセット
+                phot1Canvas.getContext('2d').clearRect(0, 0, phot1Canvas.width, phot1Canvas.height);
+                phot2Canvas.getContext('2d').clearRect(0, 0, phot2Canvas.width, phot2Canvas.height);
+                phot3Canvas.getContext('2d').clearRect(0, 0, phot3Canvas.width, phot3Canvas.height);
+
             } else {
                 modal.hide();
                 alert('アップロードに失敗しました。');
@@ -299,7 +246,6 @@ function upload(image, $http) {
 
     } else {
         modal.hide();
-        alert('撮影されていません。');
     }
 
 }

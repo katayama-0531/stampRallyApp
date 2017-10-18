@@ -1,14 +1,14 @@
 app.controller('stampCtr', function($scope, $http) {
     //スタンプ画面のコントローラー
     lodingIcon.style.visibility = "hidden";
-    gpsButton.addEventListener('touchend', function() {
+    gpsButton.addEventListener('click', function() {
         lodingIcon.style.visibility = "visible";
         gpsButton.innerHTML = "現在位置取得中";
         //現在位置取得ボタンタップ時
         getGps($http);
     });
 
-    if (! navigator.geolocation) {
+    if (!navigator.geolocation) {
         // エラーコードに合わせたエラー内容をアラート表示
         ons.notification.alert({ message: "お使いの端末ではGPSがご利用いただけません。", title: "エラー" });
     }
@@ -41,12 +41,12 @@ function getGps($http) {
     var onGpsSuccess = function(position) {
         //この辺りで緯度、経度を送信する
         var id = localStorage.getItem('ID');
-        var n = 6 ; // 小数点第n位まで残す
-        var latitude = Math.floor( position.coords.latitude * Math.pow( 10, n ) ) / Math.pow( 10, n ) ;
-        var longitude = Math.floor( position.coords.longitude * Math.pow( 10, n ) ) / Math.pow( 10, n ) ;
-        var altitude = Math.floor( position.coords.altitude * Math.pow( 10, n ) ) / Math.pow( 10, n ) ;
-        var accuracy = Math.floor( position.coords.accuracy * Math.pow( 10, n ) ) / Math.pow( 10, n ) ;
-        var altitudeAccuracy = Math.floor( position.coords.altitudeAccuracy * Math.pow( 10, n ) ) / Math.pow( 10, n ) ;
+        var n = 6; // 小数点第n位まで残す
+        var latitude = Math.floor(position.coords.latitude * Math.pow(10, n)) / Math.pow(10, n);
+        var longitude = Math.floor(position.coords.longitude * Math.pow(10, n)) / Math.pow(10, n);
+        var altitude = Math.floor(position.coords.altitude * Math.pow(10, n)) / Math.pow(10, n);
+        var accuracy = Math.floor(position.coords.accuracy * Math.pow(10, n)) / Math.pow(10, n);
+        var altitudeAccuracy = Math.floor(position.coords.altitudeAccuracy * Math.pow(10, n)) / Math.pow(10, n);
         var gpsData = {
             userId: id,
             lat: latitude,
@@ -55,8 +55,15 @@ function getGps($http) {
             acc: accuracy,
             altacc: altitudeAccuracy
         };
-        //navigator.geolocation.clearWatch(watchId);
         checkGps(gpsData, $http);
+        id = null;
+        n = null;
+        latitude = null;
+        longitude = null;
+        altitude = null;
+        accuracy = null;
+        altitudeAccuracy = null;
+        gpsData = null;
     };
 
     var onGpsError = function(message) {
@@ -74,18 +81,20 @@ function getGps($http) {
 
             // エラーコードに合わせたエラー内容をアラート表示
             ons.notification.alert({ message: errorMessage[message.code], title: "エラー" });
+            errorMessage = null;
         }, 0);
         //navigator.geolocation.clearWatch(watchId);
     };
 
     var option = {
         frequency: 5000,
-        timeout:3000,
+        timeout: 3000,
         enableHighAccuracy: true
     };
     //watchPositionは移動を検知できる。今回は移動は取得しないのでgetCurrentPositionを使用。
     //watchId = navigator.geolocation.watchPosition(onGpsSuccess, onGpsError, option);
     navigator.geolocation.getCurrentPosition(onGpsSuccess, onGpsError, option);
+    option = null;
 }
 
 function checkGps(gpsData, $http) {
@@ -146,6 +155,14 @@ function checkGps(gpsData, $http) {
         map.setZoom(16);
         map.setCenter(marker.getPosition());
         navigator.vibrate(1000, 1000);
+
+        //メモリ解放
+        url = null;
+        str = null;
+        mapOptions = null;
+        map = null;
+        latLong = null;
+        marker = null;
     }).
     error(function(data, status) {
         alert("エラーが発生しました。");

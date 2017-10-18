@@ -1,14 +1,13 @@
 <ons-page ng-controller="menu2Ctr" id="menu2Page">
     <div class="content" style="text-align: center">
-        <ons-button id="snapButton" type="button" ng-click="snapClick()">撮影する</ons-button>
-        <ons-button id="albumButton" type="button" ng-click="albumClick()">写真を選択</ons-button>
         <ons-button id="saveButton" type="button" ng-click="saveClick()">保存する</ons-button>
         <div class="wrapper">
-            <!--<canvas class="absolute" id="phot1Canvas" style="position: absolute; z-index: 0"></canvas>
-            <canvas class="absolute" id="phot2Canvas" style="position: absolute; z-index: 1"></canvas>
-            <canvas class="absolute" id="phot3Canvas" style="position: absolute; z-index: 2"></canvas>
-            <canvas class="absolute" id="maskCanvas" style="position: absolute; z-index: 3"></canvas>-->
-            <canvas class="relative" id="photCanvas"></canvas>
+            <canvas id="phot1Canvas" style="position: absolute; z-index: 0"></canvas>
+            <canvas id="phot2Canvas" style="position: absolute; z-index: 1; top: 180px;"></canvas>
+            <canvas id="phot3Canvas" style="position: absolute; z-index: 2; top: 335px;"></canvas>
+            <canvas class="relative" id="maskCanvas" style="z-index: 3; pointer-events: none;" ></canvas>
+            <!--各キャンバスをまとめるためのキャンバス-->
+            <canvas class="relative" id="photCanvas" style="z-index: 4; pointer-events: none;" hidden="true"></canvas>
         </div>
     </div>
 
