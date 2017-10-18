@@ -1,8 +1,8 @@
 app.controller('qrCtr', function($scope) {
     //QRコード読み取り画面のコントローラー
-    scanButton.addEventListener('touchend', function() {
+    $scope.getQRCode=function(){
         getQRCode($scope);
-    });
+    }
 });
 
 function getQRCode($scope) {

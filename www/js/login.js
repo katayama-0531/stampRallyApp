@@ -16,7 +16,6 @@ app.controller('AppController', function($scope, $http, $timeout) {
         });
         if (page.target.id == "loginPage") {
             login(id, $http);
-            id=null;
         }
     });
 

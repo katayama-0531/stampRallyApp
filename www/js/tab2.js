@@ -25,7 +25,7 @@ app.controller('tab2Ctr', function($scope, $timeout) {
         countItems: function() {
             // Return number of items.
             if (memoListItem) {
-               itemCount = memoListItem.length;
+                itemCount = memoListItem.length;
             }
             return itemCount;
         },
@@ -41,23 +41,12 @@ app.controller('tab2Ctr', function($scope, $timeout) {
         }
     };
 
-    document.addEventListener("tap", listItemTap, false);
-
-    //リストの中の要素をタッチ
-    function listItemTap(event) {
-        //戻るボタンのタッチでエラーが出る為回避（タッチイベントの付け方を考えた方が良いかもしれない）
-        if (event.target.offsetParent) {
-            var　 touchObject = event.target.offsetParent.id;
-            if (touchObject.substr(0, 8) === "listitem") {
-                // タッチの情報を含むオブジェクト
-                var memoObject = touchObject.replace(/listitem/gi, "");
-                //
-                var options = {
-                    data: memoObject
-                };
-                navi.bringPageTop("html/memo.html", options);
-            }
-        }
+    $scope.listTouch = function(event) {
+        var itemNum = event.substr(8);
+        var options = {
+            data: [itemNum, memoListItem[itemNum]]
+        };
+        navi.bringPageTop("html/memo.html", options);
     }
 
     $scope.listItemHold = function() {

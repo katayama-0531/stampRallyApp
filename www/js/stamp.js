@@ -1,12 +1,13 @@
 app.controller('stampCtr', function($scope, $http) {
     //スタンプ画面のコントローラー
     lodingIcon.style.visibility = "hidden";
-    gpsButton.addEventListener('click', function() {
+    
+    $scope.getGps = function() {
         lodingIcon.style.visibility = "visible";
         gpsButton.innerHTML = "現在位置取得中";
         //現在位置取得ボタンタップ時
         getGps($http);
-    });
+    }
 
     if (!navigator.geolocation) {
         // エラーコードに合わせたエラー内容をアラート表示
@@ -56,14 +57,6 @@ function getGps($http) {
             altacc: altitudeAccuracy
         };
         checkGps(gpsData, $http);
-        id = null;
-        n = null;
-        latitude = null;
-        longitude = null;
-        altitude = null;
-        accuracy = null;
-        altitudeAccuracy = null;
-        gpsData = null;
     };
 
     var onGpsError = function(message) {
@@ -81,7 +74,6 @@ function getGps($http) {
 
             // エラーコードに合わせたエラー内容をアラート表示
             ons.notification.alert({ message: errorMessage[message.code], title: "エラー" });
-            errorMessage = null;
         }, 0);
         //navigator.geolocation.clearWatch(watchId);
     };
@@ -94,7 +86,6 @@ function getGps($http) {
     //watchPositionは移動を検知できる。今回は移動は取得しないのでgetCurrentPositionを使用。
     //watchId = navigator.geolocation.watchPosition(onGpsSuccess, onGpsError, option);
     navigator.geolocation.getCurrentPosition(onGpsSuccess, onGpsError, option);
-    option = null;
 }
 
 function checkGps(gpsData, $http) {
@@ -155,14 +146,6 @@ function checkGps(gpsData, $http) {
         map.setZoom(16);
         map.setCenter(marker.getPosition());
         navigator.vibrate(1000, 1000);
-
-        //メモリ解放
-        url = null;
-        str = null;
-        mapOptions = null;
-        map = null;
-        latLong = null;
-        marker = null;
     }).
     error(function(data, status) {
         alert("エラーが発生しました。");
