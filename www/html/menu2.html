@@ -1,5 +1,5 @@
 <ons-page ng-controller="menu2Ctr" id="menu2Page">
-    <div class="container" style="text-align: center">
+    <article class="container" style="text-align: center">
         <ons-button id="saveButton" type="button" ng-click="saveClick()">保存する</ons-button>
         <div class="wrapper">
             <canvas id="phot1Canvas" style="position: absolute; z-index: 0" ng-click="canvasClick(1)"　moz-opaque></canvas>
@@ -9,7 +9,7 @@
             <!--各キャンバスをまとめるためのキャンバス-->
             <canvas class="relative" id="photCanvas" style="z-index: 4; pointer-events: none;" hidden="true"></canvas>
         </div>
-    </div>
+    </article>
 
     <!--モーダルレイヤー-->
     <ons-modal var="modal">

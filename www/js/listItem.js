@@ -19,8 +19,15 @@ app.controller('listitemCtr', function($scope) {
     };
     $scope.thirdClick = function(event) {
         if (!move) {
-            console.log("3つ目クリック");
+            console.log("3つ目(canvas5枚)クリック");
             content.load("html/menu2.html");
+            isMenu();
+        };
+    };
+    $scope.third1Click = function(event) {
+        if (!move) {
+            console.log("3つ目(canvas1枚)クリック");
+            content.load("html/menu2-5.html");
             isMenu();
         };
     };

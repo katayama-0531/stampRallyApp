@@ -122,7 +122,7 @@ function draw(imageData) {
     var img = new Image();
     img.src = imageData;
     img.onload = function() {
-        /* 画像を描画 */
+        /* 画像を描画 (各キャンバスに描画していく)*/
         switch (choiceCanvase) {
             case 1:
                 phot1Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 0, phot1Canvas.width, phot1Canvas.height);
