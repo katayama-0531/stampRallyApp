@@ -1,7 +1,12 @@
 app.controller('stampCtr', function($scope, $http) {
     //スタンプ画面のコントローラー
     lodingIcon.style.visibility = "hidden";
-    
+
+    if (!navigator.geolocation) {
+        // エラーコードに合わせたエラー内容をアラート表示
+        ons.notification.alert({ message: "お使いの端末ではGPSがご利用いただけません。", title: "エラー", cancelable: true });
+    }
+
     $scope.getGps = function() {
         lodingIcon.style.visibility = "visible";
         gpsButton.innerHTML = "現在位置取得中";
@@ -9,10 +14,18 @@ app.controller('stampCtr', function($scope, $http) {
         getGps($http);
     }
 
-    if (!navigator.geolocation) {
-        // エラーコードに合わせたエラー内容をアラート表示
-        ons.notification.alert({ message: "お使いの端末ではGPSがご利用いただけません。", title: "エラー" });
-    }
+    stampPage.addEventListener("hide", function() {
+        //スタンプページが隠れた場合
+        gps.innerHTML = "";
+        gpsButton.innerHTML = "現在位置取得";
+        stamp.innerHTML = "";
+        mapCanvas.innerHTML = null;
+        stampImg.src = "";
+        stampImg.className = "";
+        stampImg2.src = "";
+        stampImg2.className = "";
+        gpsButton.disabled = false;
+    });
 
     //アニメーション終了時のイベント
     stampImg.addEventListener("animationend", function() {
@@ -34,6 +47,7 @@ app.controller('stampCtr', function($scope, $http) {
 
         }
     });
+
 
 });
 
@@ -73,7 +87,7 @@ function getGps($http) {
             };
 
             // エラーコードに合わせたエラー内容をアラート表示
-            ons.notification.alert({ message: errorMessage[message.code], title: "エラー" });
+            ons.notification.alert({ message: errorMessage[message.code], title: "エラー", cancelable: true });
         }, 0);
         //navigator.geolocation.clearWatch(watchId);
     };
@@ -148,7 +162,7 @@ function checkGps(gpsData, $http) {
         navigator.vibrate(1000, 1000);
     }).
     error(function(data, status) {
-        alert("エラーが発生しました。");
+        ons.notification.alert({ message:"エラーが発生しました。", title: "エラー", cancelable: true });
         console.log(data);
     });
 }

@@ -25,6 +25,8 @@ app.controller('menu2Ctr', function($scope, $http) {
         var height = parseInt(img.height);
         maskCanvas.width = width;
         maskCanvas.height = height;
+        photCanvas.width = width;
+        photCanvas.height = height;
         phot3Canvas.width = width;
         phot3Canvas.height = height - phot3Canvas.style.top.slice(0, -2);
         phot2Canvas.width = width;
@@ -36,24 +38,19 @@ app.controller('menu2Ctr', function($scope, $http) {
         maskCanvas.getContext('2d').drawImage(img, 0, 0);
     }
     //画像を貼る予定のキャンバスのタッチイベント
-    phot1Canvas.addEventListener("click", function(event) {
-        choiceCanvase = 1;
+    $scope.canvasClick = function(arg) {
+        choiceCanvase = arg;
         setTimeout(function() {
-            navigator.notification.confirm("アルバムの写真を使用するか撮影するか選択してください", canvasConfirmCallback, "写真の選択", ["アルバムから選択", "撮影する"]);
+            ons.notification.confirm({
+                message: "アルバムの写真を使用するか撮影するか選択してください",
+                buttonLabels: ["アルバム", "撮影"],
+                cancelable: true,
+                title: "写真の選択",
+                callback: canvasConfirmCallback
+            });
         }, 0);
-    });
-    phot2Canvas.addEventListener("click", function() {
-        choiceCanvase = 2;
-        setTimeout(function() {
-            navigator.notification.confirm("アルバムの写真を使用するか撮影するか選択してください", canvasConfirmCallback, "写真の選択", ["アルバムから選択", "撮影する"]);
-        }, 0);
-    });
-    phot3Canvas.addEventListener("click", function() {
-        choiceCanvase = 3;
-        setTimeout(function() {
-            navigator.notification.confirm("アルバムの写真を使用するか撮影するか選択してください", canvasConfirmCallback, "写真の選択", ["アルバムから選択", "撮影する"]);
-        }, 0);
-    });
+    }
+
     $scope.saveClick = function() {
         modal.show();
         save($http);
@@ -62,10 +59,10 @@ app.controller('menu2Ctr', function($scope, $http) {
 
 function canvasConfirmCallback(buttonIndex) {
     switch (buttonIndex) {
-        case 1:
+        case 0:
             getPhot();
             break;
-        case 2:
+        case 1:
             getMaskCamera();
             break;
         default:
@@ -92,7 +89,7 @@ function getMaskCamera() {
     //撮影失敗
     function onCameraFail(message) {
         //撮影キャンセルもエラーが表示されるので取りあえずコメントアウト（表示文字：no image selected)
-        //alert('Error occured: ' + message);
+        //ons.notification.alert({ message: message, title: "エラー", cancelable: true });
         modal.hide();
     }
 }
@@ -115,7 +112,7 @@ function getPhot() {
     //取得失敗
     function onAlbumFail(message) {
         //アルバム開いてもキャンセルのエラーが表示されるので取りあえずコメントアウト（表示文字：no image selected)
-        //alert('Error occured: ' + message);
+        //ons.notification.alert({ message: message, title: "エラー", cancelable: true });
         modal.hide();
     }
 }
@@ -224,7 +221,7 @@ function upload(image, $http) {
             if (e["response"] == true) {
                 choiceCanvase = 0;
                 modal.hide();
-                alert('保存しました。');
+                ons.notification.alert({ message: "保存しました。", title: "完了", cancelable: true });
                 //選択した画像をリセット
                 phot1Canvas.getContext('2d').clearRect(0, 0, phot1Canvas.width, phot1Canvas.height);
                 phot2Canvas.getContext('2d').clearRect(0, 0, phot2Canvas.width, phot2Canvas.height);
@@ -232,13 +229,13 @@ function upload(image, $http) {
 
             } else {
                 modal.hide();
-                alert('アップロードに失敗しました。');
+                ons.notification.alert({ message: "アップロードに失敗しました。", title: "エラー", cancelable: true });
                 console.log(e);
             }
         }).
         error(function(data, status) {
             modal.hide();
-            alert("アップロード中にエラーが発生しました。");
+            ons.notification.alert({ message: "アップロード中にエラーが発生しました。", title: "エラー", cancelable: true });
             console.log(data);
         });
 

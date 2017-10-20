@@ -31,7 +31,7 @@ app.controller('menu3Ctr', function($scope, $http) {
         }
     }).
     error(function(data, status) {
-        alert("エラーが発生しました。");
+        ons.notification.alert({ message: "エラーが発生しました。", title: "エラー", cancelable: true });
         console.log(data);
     });
 
@@ -63,4 +63,5 @@ app.controller('menu3Ctr', function($scope, $http) {
             console.log('Item #' + (index + 1) + '削除');
         }
     };
+
 });

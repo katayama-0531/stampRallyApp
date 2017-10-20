@@ -1,5 +1,5 @@
 app.controller('cameraCtr', function($scope) {
-    //スライドメニュー2のコントローラー
+    //スライドメニュー2のコントローラー(ソースツリー文字化け対策の為文字挿入）
     $scope.snapSaveClick = function() {
         getCamera();
     }
@@ -22,6 +22,6 @@ function getCamera() {
 
     //撮影失敗
     function onFail(message) {
-        alert('Error occured: ' + message);
+        ons.notification.alert({ message: message, title: "エラー", cancelable: true });
     }
 }

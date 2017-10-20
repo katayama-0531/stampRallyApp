@@ -11,8 +11,8 @@
         </ons-row>
         <div class="content" style="bottom: 0; height:85%; overflow: auto;">
             <ons-list id="memoList">
-                <ons-gesture-detector ng-hold="listItemHold()">
-                    <ons-list-item class="list__item--tappable list__item__line-height" ng-attr-id="{{id}}" ons-lazy-repeat="ItemListDelegate" ng-click="listTouch(id)" tappable>
+                <ons-gesture-detector>
+                    <ons-list-item class="list__item--tappable list__item__line-height" ng-attr-id="{{id}}" ons-lazy-repeat="ItemListDelegate" ng-click="listTouch(id)">
                         <ons-icon icon="fa-trash"></ons-icon>
                         {{ memo }}
                     </ons-list-item>

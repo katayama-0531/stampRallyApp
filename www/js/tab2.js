@@ -1,4 +1,4 @@
-app.controller('tab2Ctr', function($scope, $timeout) {
+app.controller('tab2Ctr', function($scope, $timeout, $element) {
     //メモ画面のコントローラー
     save.disabled = true;
     //保存されているメモのリスト
@@ -11,11 +11,10 @@ app.controller('tab2Ctr', function($scope, $timeout) {
     };
 
     var itemCount = 0;
-
     $scope.ItemListDelegate = {
         configureItemScope: function(index, itemScope) {
             if (!itemScope.memo) {
-                console.log('Item #' + (index + 1) + '作成');
+                //console.log('Item #' + (index + 1) + '作成');
                 itemScope.memo = memoListItem[index].dataTime;
                 itemScope.id = "listitem" + index;
             }
@@ -37,27 +36,32 @@ app.controller('tab2Ctr', function($scope, $timeout) {
 
         destroyItemScope: function(index, itemScope) {
             // Optional method that is called when an item is unloaded.
-            console.log('Item #' + (index + 1) + '削除');
+            //console.log('Item #' + (index + 1) + '削除');
         }
     };
 
-    $scope.listTouch = function(event) {
-        var itemNum = event.substr(8);
+    $scope.listTouch = function(arg) {
+        var itemNum = arg.substr(8);
         var options = {
             data: [itemNum, memoListItem[itemNum]]
         };
         navi.bringPageTop("html/memo.html", options);
     }
 
-    $scope.listItemHold = function() {
+    memoList.addEventListener('hold', function(event) {
         var　 touchObject = event.target.offsetParent.id;
-        if (touchObject.substr(0, 8) === "listitem") {
-            delindex = touchObject.replace(/listItem/gi, "");
-            window.confirm = navigator.notification.confirm;
-            navigator.notification.confirm("このメモを削除しますか？", memoDelete, "警告", ["はい", "いいえ"]);
+         if (touchObject.substr(0, 8) === "listitem") {
+            delindex = touchObject.substr(8);
+            ons.notification.confirm({
+                message: "このメモを削除しますか？",
+                buttonLabels: ["はい", "いいえ"],
+                //cancelable: true,
+                title: "メモの削除",
+                callback: memoDelete
+            });
         }
-    }
-
+    });
+    
     //保存ボタンタッチ
     $scope.save = function() {
         if (memo.value) {
@@ -72,14 +76,13 @@ app.controller('tab2Ctr', function($scope, $timeout) {
             memo.value = "";
             ons.notification.toast({ message: '保存しました。', timeout: 1000 });
         } else {
-            alert("内容がありません。メモを入力してください。");
-
+            ons.notification.alert({ message: "内容がありません。メモを入力してください。", title: "エラー", cancelable: true });
         }
     }
 
     function memoDelete(buttonIndex) {
         //はいがタップされたら削除する
-        if (buttonIndex == 1) {
+        if (buttonIndex == 0) {
             memoListItem.splice(delindex, 1);
             //一度memoを全部削除して入れ直す。
             localStorage.removeItem('memo');

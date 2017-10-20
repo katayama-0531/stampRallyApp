@@ -3,6 +3,11 @@ app.controller('qrCtr', function($scope) {
     $scope.getQRCode=function(){
         getQRCode($scope);
     }
+
+    qrScanPage.addEventListener('hide', function(event) {
+        //ページが見えなくなった時
+        resultMessage.innerHTML = "ここに結果が表示されます。";
+    });
 });
 
 function getQRCode($scope) {

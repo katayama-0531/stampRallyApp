@@ -2,9 +2,9 @@
     <div class="content" style="text-align: center">
         <ons-button id="saveButton" type="button" ng-click="saveClick()">保存する</ons-button>
         <div class="wrapper">
-            <canvas id="phot1Canvas" style="position: absolute; z-index: 0"></canvas>
-            <canvas id="phot2Canvas" style="position: absolute; z-index: 1; top: 180px;"></canvas>
-            <canvas id="phot3Canvas" style="position: absolute; z-index: 2; top: 335px;"></canvas>
+            <canvas id="phot1Canvas" style="position: absolute; z-index: 0" ng-click="canvasClick(1)"></canvas>
+            <canvas id="phot2Canvas" style="position: absolute; z-index: 1; top: 180px;" ng-click="canvasClick(2)"></canvas>
+            <canvas id="phot3Canvas" style="position: absolute; z-index: 2; top: 335px;" ng-click="canvasClick(3)"></canvas>
             <canvas class="relative" id="maskCanvas" style="z-index: 3; pointer-events: none;" ></canvas>
             <!--各キャンバスをまとめるためのキャンバス-->
             <canvas class="relative" id="photCanvas" style="z-index: 4; pointer-events: none;" hidden="true"></canvas>

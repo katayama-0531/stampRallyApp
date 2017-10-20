@@ -24,7 +24,9 @@ app.controller('homeCtr', function($scope) {
         }
     };
 
-    /* 前ページにスワイプ */
+    /* 前ページにスワイプ
+    documentにイベントリスナーをつけるとメモリを保持し続けるようなので
+    各ページ毎に書いた方が良い*/
     // document.addEventListener('swiperight', function(event) {
     //     mainTab.setActiveTab(mainTab.getActiveTabIndex() - 1);
     // });
