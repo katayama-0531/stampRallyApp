@@ -30,9 +30,9 @@ app.controller('menu2Ctr', function($scope, $http) {
         phot3Canvas.width = width;
         phot3Canvas.height = height - phot3Canvas.style.top.slice(0, -2);
         phot2Canvas.width = width;
-        phot2Canvas.height = height - phot2Canvas.style.top.slice(0, -2);
+        phot2Canvas.height = (height - phot2Canvas.style.top.slice(0, -2)) - phot3Canvas.height;
         phot1Canvas.width = width;
-        phot1Canvas.height = height;
+        phot1Canvas.height = (height - phot2Canvas.height) - phot3Canvas.height;
         photCanvas.getContext('2d').clearRect(0, 0, width, height);
         /* 画像を描画 */
         maskCanvas.getContext('2d').drawImage(img, 0, 0);

@@ -1,7 +1,9 @@
-<!--ログイン画面(ソースツリー文字化け対策の為文字挿入）-->
+<!--ログイン画面(HTML5の書き方に合わせた）-->
 <ons-page id="loginPage" -ng-init="loginInit()">
-    <div class="content" style="text-align: center">
+    <header class="container" style="text-align: center">
         <h3>ログイン中</h3>
-        <ons-button id="loginBtn" ng-click="loginClick()" 　modifier="quiet" disabled>ログイン</ons-button>
-    </div>
+        <nav>
+            <ons-button id="loginBtn" ng-click="loginClick()" 　modifier="quiet" disabled>ログイン</ons-button>
+        </nav>
+    </header>
 </ons-page>
