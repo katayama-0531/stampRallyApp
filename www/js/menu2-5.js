@@ -7,7 +7,7 @@ var choiceCanvase = 0;
 //設定中の画像枚数
 var imgCount = 0;
 //各image
-var mask = document.createElement("canvas");
+var mask = new Image();
 var image1 = new Image();
 var image2 = new Image();
 var image3 = new Image();
@@ -26,7 +26,7 @@ app.controller('menu2-5Ctr', function($scope, $http) {
             setTimeout(function() {
                 ons.notification.confirm({
                     message: "既に3枚画像が選択されています。全ての選択を解除しますか？",
-                    buttonLabels: ["はい", "いいえ"],
+                    buttonLabels: ["全ての選択を解除する", "一部を差替える"],
                     cancelable: true,
                     title: "写真の選択",
                     callback: canvasResetCallback
@@ -62,23 +62,21 @@ app.controller('menu2-5Ctr', function($scope, $http) {
 
 function maskLoad() {
     /* Imageオブジェクトを生成 */
-    var img = new Image();
     if (monaca.isAndroid) {
-        img.src = maskA;
+        mask.src = maskA;
     } else if (monaca.isIOS) {
-        img.src = maskI;
+        mask.src = maskI;
     } else {
-        img.src = maskA;
+        mask.src = maskA;
     }
-    img.onload = function() {
+    mask.onload = function() {
         //キャンバスは高さと幅を指定しておかないとiOSで表示できない
-        var width = parseInt(img.width);
-        var height = parseInt(img.height);
+        var width = parseInt(mask.width);
+        var height = parseInt(mask.height);
         maskCanvas.width = width;
         maskCanvas.height = height;
         /* 画像を描画 */
-        maskCanvas.getContext('2d').drawImage(img, 0, 0);
-        mask = maskCanvas;
+        maskCanvas.getContext('2d').drawImage(mask, 0, 0);
     }
 }
 
@@ -169,25 +167,52 @@ function draw(imageData) {
                 if (!image1.src) {
                     context.drawImage(img, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
                 } else {
-                    console.log(mask.width)
-                    var maskCan = mask.getContext('2d')
-                    maskCan.drawImage(image1, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
-                    context.globalCompositeOperation = "sorce-in";
-                    context.drawImage(img, 0, 0, mask.width, mask.height);
-
+                    console.log(mask);
+                    context.clearRect(0, 0, mask.width, mask.height);
+                    context.drawImage(mask, 0, 0, mask.width, mask.height);
+                    context.drawImage(img, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
+                    if (image2.src) {
+                        context.drawImage(image2, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
+                    }
+                    if (image3.src) {
+                        context.drawImage(image3, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
+                    }
                 }
                 image1 = img;
-                imgCount++;
                 break;
             case 2:
                 context.drawImage(img, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
+
+                if (!image2.src) {
+                    context.drawImage(img, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
+                } else {
+                    context.clearRect(0, 0, mask.width, mask.height);
+                    context.drawImage(mask, 0, 0, mask.width, mask.height);
+                    context.drawImage(img, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
+                    if (image1.src) {
+                        context.drawImage(image1, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
+                    }
+                    if (image3.src) {
+                        context.drawImage(image3, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
+                    }
+                }
                 image2 = img;
-                imgCount++;
                 break;
             case 3:
-                context.drawImage(img, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height　 - 335);
+                if (!image3.src) {
+                    context.drawImage(img, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
+                } else {
+                    context.clearRect(0, 0, mask.width, mask.height);
+                    context.drawImage(mask, 0, 0, mask.width, mask.height);
+                    context.drawImage(img, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
+                    if (image1.src) {
+                        context.drawImage(image1, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
+                    }
+                    if (image2.src) {
+                        context.drawImage(image2, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
+                    }
+                }
                 image3 = img;
-                imgCount++;
                 break;
             default:
                 break;
