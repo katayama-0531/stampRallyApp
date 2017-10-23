@@ -165,17 +165,17 @@ function save($http) {
             function(entry) {
                 entry.createWriter(
                     function(writer) {
-                        console.log("書き込み中");
-                        var cb = function() {
-                            console.log("書き込み終了");
-                        }
+                        // console.log("書き込み中");
+                        // var cb = function() {
+                        //     console.log("書き込み終了");
+                        // }
 
-                        writer.onwrite = cb;
-                        writer.onerror = function(e) {
-                            modal.hide();
-                            console.log("書き込み失敗");
-                            console.log("ファイルへの書き込みに失敗しました。: " + e.toString());
-                        }
+                        // writer.onwrite = cb;
+                        // writer.onerror = function(e) {
+                        //     modal.hide();
+                        //     console.log("書き込み失敗");
+                        //     console.log("ファイルへの書き込みに失敗しました。: " + e.toString());
+                        // }
                         //サーバーに保存するのでほんたいには保存しない
                         //writer.write(buffer);
 

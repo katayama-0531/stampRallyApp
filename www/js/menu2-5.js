@@ -4,8 +4,6 @@ var maskA = "images/mask_android.png";
 var maskI = "images/mask_ios.png";
 //選択中の画像
 var choiceCanvase = 0;
-//設定中の画像枚数
-var imgCount = 0;
 //プリレンダリング用キャンバス
 var m_canvas = document.createElement('canvas');
 var m_1Canvas = document.createElement('canvas');
@@ -43,20 +41,8 @@ app.controller('menu2-5Ctr', function($scope, $http) {
     }
 
     $scope.saveClick = function() {
-        if (imgCount != 3) {
-            setTimeout(function() {
-                ons.notification.confirm({
-                    message: imgCount + "枚しか画像が選択されていません。本当に保存しますか？？",
-                    buttonLabels: ["保存する", "画像選択に戻る"],
-                    cancelable: true,
-                    title: "写真の選択",
-                    callback: canvasResetCallback
-                });
-            }, 0);
-        } else {
-            modal.show();
-            save($http);
-        }
+        modal.show();
+        save($http);
     }
     $scope.resetClick = function() {
         modal.show();
@@ -64,6 +50,9 @@ app.controller('menu2-5Ctr', function($scope, $http) {
         var maskCanvasReset = maskCanvas.getContext('2d');
         maskCanvasReset.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
         maskCanvasReset.drawImage(m_canvas, 0, 0);
+        m_1Canvas.getContext('2d').clearRect(0, 0, m_1Canvas.width, m_1Canvas.height);
+        m_2Canvas.getContext('2d').clearRect(0, 0, m_2Canvas.width, m_2Canvas.height);
+        m_3Canvas.getContext('2d').clearRect(0, 0, m_3Canvas.width, m_3Canvas.height);
         modal.hide();
     }
 });
@@ -87,11 +76,11 @@ function maskLoad() {
         m_canvas.width = width;
         m_canvas.height = height;
         m_1Canvas.width = width;
-        m_1Canvas.height = height;
+        m_1Canvas.height = 180;
         m_2Canvas.width = width;
-        m_2Canvas.height = height;
+        m_2Canvas.height = 335 - 180;
         m_3Canvas.width = width;
-        m_3Canvas.height = height;
+        m_3Canvas.height = height　 - 335;
 
         /* 画像を描画 */
         m_canvas.getContext('2d').drawImage(mask, 0, 0);
@@ -99,24 +88,13 @@ function maskLoad() {
     }
 }
 
-function canvasConfirmCallback(buttonIndex) {
+function canvasConfirmCallback(buttonIndex, $http) {
     switch (buttonIndex) {
         case 0:
             getPhot();
             break;
         case 1:
             getMaskCamera();
-            break;
-        default:
-            break;
-    }
-}
-
-function canvasResetCallback(buttonIndex) {
-    switch (buttonIndex) {
-        case 0:
-            modal.show();
-            save($http);
             break;
         default:
             break;
@@ -182,27 +160,27 @@ function draw(imageData) {
         switch (choiceCanvase) {
             case 1:
                 context.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
-                m_1Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
+                m_1Canvas.getContext('2d').drawImage(img, 0, 0, maskCanvas.width, 180);
                 context.drawImage(m_canvas, 0, 0);
                 context.drawImage(m_1Canvas, 0, 0);
-                context.drawImage(m_2Canvas, 0, 0);
-                context.drawImage(m_3Canvas, 0, 0);
+                context.drawImage(m_2Canvas, 0, 180);
+                context.drawImage(m_3Canvas, 0, 335);
                 break;
             case 2:
                 context.clearRect(0, 0, img.width, img.height);
-                m_2Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
+                m_2Canvas.getContext('2d').drawImage(img, 0, 0, maskCanvas.width, 335 - 180);
                 context.drawImage(m_canvas, 0, 0);
                 context.drawImage(m_1Canvas, 0, 0);
-                context.drawImage(m_2Canvas, 0, 0);
-                context.drawImage(m_3Canvas, 0, 0);
+                context.drawImage(m_2Canvas, 0, 180);
+                context.drawImage(m_3Canvas, 0, 335);
                 break;
             case 3:
                 context.clearRect(0, 0, img.width, img.height);
-                m_3Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
+                m_3Canvas.getContext('2d').drawImage(img, 0, 0, maskCanvas.width, maskCanvas.height - 335);
                 context.drawImage(m_canvas, 0, 0);
                 context.drawImage(m_1Canvas, 0, 0);
-                context.drawImage(m_2Canvas, 0, 0);
-                context.drawImage(m_3Canvas, 0, 0);
+                context.drawImage(m_2Canvas, 0, 180);
+                context.drawImage(m_3Canvas, 0, 335);
                 break;
             default:
                 break;
@@ -211,6 +189,7 @@ function draw(imageData) {
         context = null;
     }
 }
+
 //64base→img変換
 function Base64ToImage(base64img, callback) {
     var img = new Image();
@@ -229,15 +208,15 @@ function save($http) {
             function(entry) {
                 entry.createWriter(
                     function(writer) {
-                        var cb = function() {
-                            console.log("書き込み終了");
-                        }
+                        // var cb = function() {
+                        //     console.log("書き込み終了");
+                        // }
 
-                        writer.onwrite = cb;
-                        writer.onerror = function(e) {
-                            modal.hide();
-                            console.log("ファイルへの書き込みに失敗しました。: " + e.toString());
-                        }
+                        // writer.onwrite = cb;
+                        // writer.onerror = function(e) {
+                        //     modal.hide();
+                        //     console.log("ファイルへの書き込みに失敗しました。: " + e.toString());
+                        // }
                         //サーバーに保存するのでほんたいには保存しない
                         //writer.write(buffer);
 
@@ -284,7 +263,12 @@ function upload(image, $http) {
                 modal.hide();
                 ons.notification.alert({ message: "保存しました。", title: "完了", cancelable: true });
                 //選択した画像をリセット
-
+                var maskCanvasReset = maskCanvas.getContext('2d');
+                maskCanvasReset.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+                maskCanvasReset.drawImage(m_canvas, 0, 0);
+                m_1Canvas.getContext('2d').clearRect(0, 0, m_1Canvas.width, m_1Canvas.height);
+                m_2Canvas.getContext('2d').clearRect(0, 0, m_2Canvas.width, m_2Canvas.height);
+                m_3Canvas.getContext('2d').clearRect(0, 0, m_3Canvas.width, m_3Canvas.height);
             } else {
                 modal.hide();
                 ons.notification.alert({ message: "アップロードに失敗しました。", title: "エラー", cancelable: true });
