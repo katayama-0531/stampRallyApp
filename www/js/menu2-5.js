@@ -7,10 +7,13 @@ var choiceCanvase = 0;
 //設定中の画像枚数
 var imgCount = 0;
 //各image
-var mask = new Image();
+var m_canvas = document.createElement('canvas');
 var image1 = new Image();
 var image2 = new Image();
 var image3 = new Image();
+var m_1Canvas = document.createElement('canvas');
+var m_2Canvas = document.createElement('canvas');
+var m_3Canvas = document.createElement('canvas');
 
 app.controller('menu2-5Ctr', function($scope, $http) {
     console.log("2つめメニュー");
@@ -22,46 +25,55 @@ app.controller('menu2-5Ctr', function($scope, $http) {
     maskLoad();
     //画像を貼る予定のキャンバスのタッチイベント
     $scope.canvasClick = function($event) {
-        if (imgCount == 3) {
+        //$eventの結果はブラウザによって若干の違いがある
+        var touchPointY = ($event.offsetY) ? $event.offsetY : $event.layerY;
+        if (touchPointY >= 0 && touchPointY < 180) {
+            choiceCanvase = 1;
+        } else if (touchPointY >= 180 && touchPointY < 355) {
+            choiceCanvase = 2;
+        } else if (touchPointY >= 355 && touchPointY < maskCanvas.height) {
+            choiceCanvase = 3;
+        }
+        setTimeout(function() {
+            ons.notification.confirm({
+                message: "アルバムの写真を使用するか撮影するか選択してください",
+                buttonLabels: ["アルバム", "撮影"],
+                cancelable: true,
+                title: "写真の選択",
+                callback: canvasConfirmCallback
+            });
+        }, 0);
+    }
+
+    $scope.saveClick = function() {
+        if (imgCount != 3) {
             setTimeout(function() {
                 ons.notification.confirm({
-                    message: "既に3枚画像が選択されています。全ての選択を解除しますか？",
-                    buttonLabels: ["全ての選択を解除する", "一部を差替える"],
+                    message: imgCount + "枚しか画像が選択されていません。本当に保存しますか？？",
+                    buttonLabels: ["保存する", "画像選択に戻る"],
                     cancelable: true,
                     title: "写真の選択",
                     callback: canvasResetCallback
                 });
             }, 0);
         } else {
-            //$eventの結果はブラウザによって若干の違いがある
-            var touchPointY = ($event.offsetY) ? $event.offsetY : $event.layerY;
-            if (touchPointY >= 0 && touchPointY < 180) {
-                choiceCanvase = 1;
-            } else if (touchPointY >= 180 && touchPointY < 355) {
-                choiceCanvase = 2;
-            } else if (touchPointY >= 355 && touchPointY < maskCanvas.height) {
-                choiceCanvase = 3;
-            }
-            setTimeout(function() {
-                ons.notification.confirm({
-                    message: "アルバムの写真を使用するか撮影するか選択してください",
-                    buttonLabels: ["アルバム", "撮影"],
-                    cancelable: true,
-                    title: "写真の選択",
-                    callback: canvasConfirmCallback
-                });
-            }, 0);
+            modal.show();
+            save($http);
         }
     }
-
-    $scope.saveClick = function() {
+    $scope.resetClick = function() {
         modal.show();
-        save($http);
+
+        var maskCanvasReset = maskCanvas.getContext('2d');
+        maskCanvasReset.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+        maskCanvasReset.drawImage(m_canvas, 0, 0);
+        modal.hide();
     }
 });
 
 function maskLoad() {
     /* Imageオブジェクトを生成 */
+    var mask = new Image();
     if (monaca.isAndroid) {
         mask.src = maskA;
     } else if (monaca.isIOS) {
@@ -75,8 +87,18 @@ function maskLoad() {
         var height = parseInt(mask.height);
         maskCanvas.width = width;
         maskCanvas.height = height;
+        m_canvas.width = width;
+        m_canvas.height = height;
+        m_1Canvas.width = width;
+        m_1Canvas.height = height;
+        m_2Canvas.width = width;
+        m_2Canvas.height = height;
+        m_3Canvas.width = width;
+        m_3Canvas.height = height;
+
         /* 画像を描画 */
-        maskCanvas.getContext('2d').drawImage(mask, 0, 0);
+        m_canvas.getContext('2d').drawImage(mask, 0, 0);
+        maskCanvas.getContext('2d').drawImage(m_canvas, 0, 0);
     }
 }
 
@@ -96,9 +118,8 @@ function canvasConfirmCallback(buttonIndex) {
 function canvasResetCallback(buttonIndex) {
     switch (buttonIndex) {
         case 0:
-            imgCount = 0;
-            maskLoad();
-            modal.hide();
+            modal.show();
+            save($http);
             break;
         default:
             break;
@@ -159,60 +180,34 @@ function draw(imageData) {
     img.onload = function() {
         /* 画像を描画 (ここで１枚のキャンバスに新たに描画していく)*/
         //合成の形式を指定する(数値はマスク画像から適当に指定している)
-        //TODO:このままでは画像を1枚ずつ変更ができない
         var context = maskCanvas.getContext('2d');
         context.globalCompositeOperation = "destination-over";
         switch (choiceCanvase) {
             case 1:
-                if (!image1.src) {
-                    context.drawImage(img, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
-                } else {
-                    console.log(mask);
-                    context.clearRect(0, 0, mask.width, mask.height);
-                    context.drawImage(mask, 0, 0, mask.width, mask.height);
-                    context.drawImage(img, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
-                    if (image2.src) {
-                        context.drawImage(image2, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
-                    }
-                    if (image3.src) {
-                        context.drawImage(image3, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
-                    }
-                }
-                image1 = img;
+                context.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+                m_1Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
+                context.drawImage(m_canvas, 0, 0);
+                context.drawImage(m_1Canvas, 0, 0);
+                context.drawImage(m_2Canvas, 0, 0);
+                context.drawImage(m_3Canvas, 0, 0);
                 break;
             case 2:
-                context.drawImage(img, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
-
-                if (!image2.src) {
-                    context.drawImage(img, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
-                } else {
-                    context.clearRect(0, 0, mask.width, mask.height);
-                    context.drawImage(mask, 0, 0, mask.width, mask.height);
-                    context.drawImage(img, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
-                    if (image1.src) {
-                        context.drawImage(image1, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
-                    }
-                    if (image3.src) {
-                        context.drawImage(image3, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
-                    }
-                }
-                image2 = img;
+                console.log("m_2Canvas")
+                context.clearRect(0, 0, img.width, img.height);
+                m_2Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
+                context.drawImage(m_canvas, 0, 0);
+                context.drawImage(m_1Canvas, 0, 0);
+                context.drawImage(m_2Canvas, 0, 0);
+                context.drawImage(m_3Canvas, 0, 0);
                 break;
             case 3:
-                if (!image3.src) {
-                    context.drawImage(img, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
-                } else {
-                    context.clearRect(0, 0, mask.width, mask.height);
-                    context.drawImage(mask, 0, 0, mask.width, mask.height);
-                    context.drawImage(img, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
-                    if (image1.src) {
-                        context.drawImage(image1, 0, 0, img.width, img.height, 0, 0, maskCanvas.width, 180);
-                    }
-                    if (image2.src) {
-                        context.drawImage(image2, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
-                    }
-                }
-                image3 = img;
+                console.log("m_3Canvas")
+                context.clearRect(0, 0, img.width, img.height);
+                m_3Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
+                context.drawImage(m_canvas, 0, 0);
+                context.drawImage(m_1Canvas, 0, 0);
+                context.drawImage(m_2Canvas, 0, 0);
+                context.drawImage(m_3Canvas, 0, 0);
                 break;
             default:
                 break;
@@ -291,7 +286,6 @@ function upload(image, $http) {
         $http.post(url, postData, config).
         success(function(e, status) {
             if (e["response"] == true) {
-                choiceCanvase = 0;
                 modal.hide();
                 ons.notification.alert({ message: "保存しました。", title: "完了", cancelable: true });
                 //選択した画像をリセット
