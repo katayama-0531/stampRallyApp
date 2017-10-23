@@ -6,11 +6,8 @@ var maskI = "images/mask_ios.png";
 var choiceCanvase = 0;
 //設定中の画像枚数
 var imgCount = 0;
-//各image
+//プリレンダリング用キャンバス
 var m_canvas = document.createElement('canvas');
-var image1 = new Image();
-var image2 = new Image();
-var image3 = new Image();
 var m_1Canvas = document.createElement('canvas');
 var m_2Canvas = document.createElement('canvas');
 var m_3Canvas = document.createElement('canvas');
@@ -192,7 +189,6 @@ function draw(imageData) {
                 context.drawImage(m_3Canvas, 0, 0);
                 break;
             case 2:
-                console.log("m_2Canvas")
                 context.clearRect(0, 0, img.width, img.height);
                 m_2Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 180, maskCanvas.width, 335 - 180);
                 context.drawImage(m_canvas, 0, 0);
@@ -201,7 +197,6 @@ function draw(imageData) {
                 context.drawImage(m_3Canvas, 0, 0);
                 break;
             case 3:
-                console.log("m_3Canvas")
                 context.clearRect(0, 0, img.width, img.height);
                 m_3Canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 335, maskCanvas.width, maskCanvas.height - 335);
                 context.drawImage(m_canvas, 0, 0);
